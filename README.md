@@ -2,7 +2,7 @@
 
 Mohammad's personal coding rules and development guidelines, organized by category.
 
-They apply to every Laravel 13 + Livewire project (Livewire 3/4, Alpine, Tailwind, Pest, PHP 8.4). Start with [How to read these rules](general/how-to-read.md) for the `[H]` / `[+]` tags and the MUST / SHOULD levels.
+They apply to every Laravel 13 + Livewire project (Livewire 3/4, Alpine, Tailwind, Pest, PHP 8.4). For a one-page overview of everything, read the [summary](SUMMARY.md). Start with [How to read these rules](general/how-to-read.md) for the `[H]` / `[+]` tags and the MUST / SHOULD levels.
 
 ## Categories
 
