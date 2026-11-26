@@ -1,3 +1,7 @@
+[Rules index](README.md) › Summary
+
+**Navigation:** [Table of contents](README.md#table-of-contents) · [How to read these rules](general/how-to-read.md) · [Proposed rules](general/proposed-rules.md)
+
 # Summary of all rules
 
 A one-page résumé of every category. Each line links to the full rule file; **MUST** rules are never broken without approval, **SHOULD** rules are the default (see [How to read these rules](general/how-to-read.md)).
