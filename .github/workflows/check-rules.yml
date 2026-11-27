@@ -1,0 +1,44 @@
+name: rules-check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static-and-unit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Static checks
+        run: python3 tools/check_rules.py --metrics
+
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -v
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # coverage.py is installed only here, to measure; the checker itself needs nothing.
+      - name: Branch coverage of the checker must be 100%
+        run: |
+          python3 -m pip install --quiet coverage
+          python3 -m coverage run --branch --include=tools/check_rules.py -m unittest discover -s tests
+          python3 -m coverage report -m --fail-under=100
