@@ -1,6 +1,6 @@
 [Rules index](../README.md) › General › Proposed rules
 
-**Navigation:** Previous: [Git workflow](../git/workflow.md) · Next: [AI agent prompt](../ai-agents/README.md) · [Table of contents](../README.md#table-of-contents)
+**Navigation:** Previous: [Stack mapping](../stacks/README.md) · Next: [AI agent prompt](../ai-agents/README.md) · [Table of contents](../README.md#table-of-contents)
 
 # Proposed rules (not yet adopted)
 
@@ -10,23 +10,22 @@ Each proposal follows the [same format](how-to-read.md#anatomy-of-a-rule) as a r
 
 ---
 
-## P1. Never swallow an exception
+## P1. Never swallow an error
 
 - **Suggested level:** **SHOULD**
-- **Rule:** Do not write an empty `catch`. Either handle the exception with a clear, specific action, or let it propagate. When catching, log the exception with the record ID or context that would help find it.
-- **Benefit:** An empty `catch` turns a failure into silence. A refund that fails quietly looks like a refund that succeeded, which is the hardest kind of bug to find.
+- **Rule:** Do not write an empty error handler. Either handle the error with a clear, specific action, or let it propagate. When catching, record the error with the record ID or context that would help find it.
+- **Benefit:** An empty handler turns a failure into silence. A refund that fails quietly looks like a refund that succeeded, which is the hardest kind of bug to find.
 - **Example:**
-  ```php
+  ```text
   // Bad: the failure disappears
-  try { $this->mailer->send($mail); } catch (Throwable) {}
+  try: mailer.send(message)
+  catch any error: (nothing)
 
   // Better: the failure is recorded with context and the job can retry
-  try {
-      $this->mailer->send($mail);
-  } catch (TransportException $e) {
-      Log::warning('Dues reminder not sent', ['invoice_id' => $invoice->id, 'error' => $e->getMessage()]);
-      throw $e;
-  }
+  try: mailer.send(message)
+  catch TransportError as error:
+      log warning "reminder not sent" with invoice_id and error.message
+      raise error
   ```
 
 ## P2. Store and compare times in UTC
@@ -38,25 +37,25 @@ Each proposal follows the [same format](how-to-read.md#anatomy-of-a-rule) as a r
 ## P3. Back up before a destructive migration
 
 - **Suggested level:** **SHOULD** (**MUST** for dropping a column or table with production data)
-- **Rule:** Before a migration that drops a column, a table or rows, take a database backup in the deploy plan and state the restore step in the PR.
+- **Rule:** Before a migration that drops a column, a table or rows, take a database backup as part of the deploy plan, and state the restore step in the pull request.
 - **Benefit:** A dropped column cannot be recovered from the schema. The backup is the only way back, and writing the restore step down makes it usable under pressure.
 
-## P4. Watch the failed-jobs table
+## P4. Watch the failed-job queue
 
 - **Suggested level:** **SHOULD**
-- **Rule:** Queued work (invoices, notifications, imports) has an alert or a regular check on the failed-jobs table, and a retry command documented in the project.
-- **Benefit:** A failed queued notification produces no error on screen. Without a check, a whole batch of reminders can fail for days before anyone notices.
+- **Rule:** Background work (invoices, notifications, imports) has an alert or a regular check on failed jobs, and a documented retry command.
+- **Benefit:** A failed notification produces no error on screen. Without a check, a whole batch of reminders can fail for days before anyone notices.
 
 ## P5. Audit dependencies in CI
 
 - **Suggested level:** **SHOULD**
-- **Rule:** CI runs `composer audit` and `npm audit` (or the equivalent) and reports known vulnerabilities. A high-severity finding blocks the merge until it is fixed or explicitly accepted with a reason.
+- **Rule:** CI runs the stack's dependency audit (for example `npm audit`, `pip-audit`, `bundle audit` or `dotnet list package --vulnerable`) and reports known vulnerabilities. A high-severity finding blocks the merge until it is fixed or explicitly accepted with a reason.
 - **Benefit:** Most real-world compromises use a known, already-published vulnerability in a dependency. An automatic check finds them when they are published, not after an incident.
 
 ## P6. Automated accessibility checks on key screens
 
 - **Suggested level:** **SHOULD**
-- **Rule:** A browser test (for example, Pest's browser plugin with an axe-core check) runs on the main screens of each area: login, the dashboard, one form and one list.
+- **Rule:** A browser test (for example with Playwright or Cypress, and an accessibility engine such as axe-core) runs on the main screens of each area: sign-in, the home screen, one form and one list.
 - **Benefit:** The WCAG rules in [Views and components](../frontend/views-and-components.md#accessibility) are easy to break with one new class. An automated check catches missing labels and low contrast on every run, which manual review does not do reliably.
 
 ---
@@ -65,5 +64,5 @@ Each proposal follows the [same format](how-to-read.md#anatomy-of-a-rule) as a r
 
 1. Discuss the item and decide whether to adopt it, at which level, and for which projects.
 2. Move the rule into the right category page, in the standard format, with a benefit and an example.
-3. Add it to the [summary](../SUMMARY.md), and to the [agent prompt](../ai-agents/CLAUDE.md) if it is a **MUST**.
+3. Add it to the [summary](../SUMMARY.md), and to the [agent prompt](../ai-agents/CLAUDE.md) if it is a **MUST**, with a matching row in the [source table](../ai-agents/README.md#where-each-numbered-rule-comes-from).
 4. Delete it from this page, so there is only one source of truth.
